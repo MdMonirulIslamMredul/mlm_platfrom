@@ -28,6 +28,11 @@ class DashboardController extends Controller
         $totalReferBonus = $user->total_refer_bonus;
         $activePlans = $user->investments()->where('status', 'active')->count();
 
+        $totalWithdrawals = $user->withdrawals()->where('status', 'approved')->sum('amount');
+        $pendingWithdraw = $user->withdrawals()->where('status', 'pending')->sum('amount');
+        $pendingDeposit = $user->deposits()->where('status', 'pending')->sum('amount');
+        $totalRecharge = $user->deposits()->where('status', 'approved')->sum('amount');
+
         $teamTotalWithdrawals = \App\Models\Transaction::whereIn('user_id', $teamUserIds)
             ->where('type', 'withdraw')
             ->where('status', 'completed')
@@ -38,6 +43,7 @@ class DashboardController extends Controller
         $recentTransactions = $user->transactions()->latest()->take(5)->get();
         $recentPackageOrders = $user->packageOrders()->latest()->take(5)->get();
         $packages = \App\Models\Package::latest()->get();
+        $paymentMethods = \App\Models\PaymentMethod::where('is_active', true)->get();
 
         return view('frontend.dashboard', compact(
             'user',
@@ -45,12 +51,17 @@ class DashboardController extends Controller
             'balance',
             'totalReferBonus',
             'activePlans',
+            'totalWithdrawals',
+            'pendingWithdraw',
+            'pendingDeposit',
+            'totalRecharge',
             'teamTotalWithdrawals',
             'teamTotalInvest',
             'recentInvestments',
             'recentTransactions',
             'recentPackageOrders',
-            'packages'
+            'packages',
+            'paymentMethods'
         ));
     }
 
