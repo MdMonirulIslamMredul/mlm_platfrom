@@ -66,7 +66,7 @@ class PackageOrderController extends Controller
                 'invested_amount' => $order->package_price,
                 'daily_return' => $package->daily_return,
                 'status' => 'active',
-                'expires_at' => now()->addDays($package->cycle_days),
+                'expires_at' => now()->addDays((int) $package->cycle_days),
             ]);
 
             // Create Transaction record for package purchase
