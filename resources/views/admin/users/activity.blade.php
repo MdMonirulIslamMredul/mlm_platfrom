@@ -48,19 +48,25 @@
 
     <!-- Activity Metric Cards Grid -->
     <div class="row g-3 mb-4">
-        <div class="col-md-4 col-sm-6">
+        <div class="col-md-3 col-sm-6">
             <div class="card border-start border-primary border-4 shadow-sm p-3 bg-white">
                 <div class="small text-muted text-uppercase fw-semibold">Available Balance</div>
                 <div class="fs-4 fw-bold text-primary">৳{{ number_format($user->balance, 2) }}</div>
             </div>
         </div>
-        <div class="col-md-4 col-sm-6">
+        <div class="col-md-3 col-sm-6">
             <div class="card border-start border-warning border-4 shadow-sm p-3 bg-white">
                 <div class="small text-muted text-uppercase fw-semibold">Total Refer Bonus</div>
                 <div class="fs-4 fw-bold text-warning">৳{{ number_format($user->total_refer_bonus, 2) }}</div>
             </div>
         </div>
-        <div class="col-md-4 col-sm-6">
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-start border-danger border-4 shadow-sm p-3 bg-white">
+                <div class="small text-muted text-uppercase fw-semibold">Total User Withdrawals</div>
+                <div class="fs-4 fw-bold text-danger">৳{{ number_format($totalUserWithdrawals, 2) }}</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
             <div class="card border-start border-success border-4 shadow-sm p-3 bg-white">
                 <div class="small text-muted text-uppercase fw-semibold">Active Investments</div>
                 <div class="fs-4 fw-bold text-success">{{ $activePlans }} Plans</div>
@@ -91,6 +97,11 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link active fw-bold" id="team-tab" data-bs-toggle="tab" data-bs-target="#team" type="button" role="tab">
                 <i class="bi bi-people me-1"></i> Referred Team Members ({{ $totalTeamCount }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold" id="withdrawals-tab" data-bs-toggle="tab" data-bs-target="#withdrawals" type="button" role="tab">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Withdrawal History ({{ $withdrawals->total() }})
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -147,7 +158,60 @@
             <div class="mt-2">{{ $teamMembers->links() }}</div>
         </div>
 
-        <!-- Tab 2: Package Purchases / Investments -->
+        <!-- Tab 2: Withdrawal Requests History -->
+        <div class="tab-pane fade" id="withdrawals" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Receiving Account</th>
+                            <th>Account Type</th>
+                            <th>Status</th>
+                            <th>Admin Note</th>
+                            <th>Date</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($withdrawals as $w)
+                            <tr>
+                                <td>{{ $w->id }}</td>
+                                <td><span class="fw-bold text-danger">৳{{ number_format($w->amount, 2) }}</span></td>
+                                <td><span class="badge bg-dark text-white">{{ $w->payment_method_name }}</span></td>
+                                <td><code>{{ $w->account_number }}</code></td>
+                                <td><span class="badge bg-secondary bg-opacity-10 text-dark">{{ $w->account_type ?? 'Personal' }}</span></td>
+                                <td>
+                                    @if($w->status === 'pending')
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i> Pending</span>
+                                    @elseif($w->status === 'approved')
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Approved</span>
+                                    @else
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> Declined</span>
+                                    @endif
+                                </td>
+                                <td><span class="small text-muted">{{ $w->admin_note ?? 'N/A' }}</span></td>
+                                <td>{{ $w->created_at->format('Y-m-d H:i') }}</td>
+                                <td class="text-end">
+                                    <a href="{{ route('admin.withdrawals.index', ['status' => $w->status]) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Manage
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">No withdrawal requests recorded for this user yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-2">{{ $withdrawals->links() }}</div>
+        </div>
+
+        <!-- Tab 3: Package Purchases / Investments -->
         <div class="tab-pane fade" id="investments" role="tabpanel">
             <div class="table-responsive">
                 <table class="table table-striped align-middle">

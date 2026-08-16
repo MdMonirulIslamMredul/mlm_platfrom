@@ -63,6 +63,17 @@
                         <span class="badge bg-warning text-dark ms-auto">{{ $pendingDepositsCount }}</span>
                     @endif
                 </a>
+                <a href="{{ route('admin.withdrawals.index') }}"
+                    class="menu-item {{ request()->routeIs('admin.withdrawals.*') ? 'active' : '' }}">
+                    <i class="bi bi-arrow-up-circle-fill"></i>
+                    <span>Withdrawal Requests</span>
+                    @php
+                        $pendingWithdrawalsCount = \App\Models\Withdrawal::where('status', 'pending')->count();
+                    @endphp
+                    @if ($pendingWithdrawalsCount > 0)
+                        <span class="badge bg-warning text-dark ms-auto">{{ $pendingWithdrawalsCount }}</span>
+                    @endif
+                </a>
                 <a href="{{ route('admin.package-orders.index') }}"
                     class="menu-item {{ request()->routeIs('admin.package-orders.*') ? 'active' : '' }}">
                     <i class="bi bi-cart-check-fill"></i>
