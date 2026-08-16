@@ -84,12 +84,15 @@ class UserController extends Controller
 
         $investments = $user->investments()->with('package')->latest()->paginate(15, ['*'], 'invest_page');
         $transactions = $user->transactions()->latest()->paginate(15, ['*'], 'trans_page');
+        $withdrawals = $user->withdrawals()->with('paymentMethod')->latest()->paginate(15, ['*'], 'withdraw_page');
 
         $totalTeamInvest = \App\Models\Investment::whereIn('user_id', $teamUserIds)->sum('invested_amount');
         $totalTeamWithdrawals = \App\Models\Transaction::whereIn('user_id', $teamUserIds)
             ->where('type', 'withdraw')
             ->where('status', 'completed')
             ->sum('amount');
+
+        $totalUserWithdrawals = $user->withdrawals()->where('status', 'approved')->sum('amount');
 
         $activePlans = $user->investments()->where('status', 'active')->count();
         $referrer = $user->referrer;
@@ -100,8 +103,10 @@ class UserController extends Controller
             'totalTeamCount',
             'investments',
             'transactions',
+            'withdrawals',
             'totalTeamInvest',
             'totalTeamWithdrawals',
+            'totalUserWithdrawals',
             'activePlans',
             'referrer'
         ));

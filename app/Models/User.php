@@ -70,6 +70,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the withdrawal requests made by this user.
+     */
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class);
+    }
+
+    /**
      * Get the package orders made by this user.
      */
     public function packageOrders()
