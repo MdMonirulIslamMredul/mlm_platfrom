@@ -7,10 +7,12 @@ use App\Http\Controllers\Admin\PaymentMethodController as AdminPaymentMethodCont
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\UserRecordController;
+use App\Http\Controllers\Admin\WithdrawalController as AdminWithdrawalController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\WithdrawalController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -80,9 +82,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/deposit', [DepositController::class, 'index'])->name('user.deposit');
     Route::post('/user/deposit', [DepositController::class, 'store'])->name('user.deposit.store');
 
+    // Withdraw Money Routes
+    Route::post('/user/withdraw', [WithdrawalController::class, 'store'])->name('user.withdraw.store');
+
     // Package Purchase & Checkout Routes
     Route::get('/user/packages/{package}/checkout', [PackageController::class, 'checkout'])->name('user.packages.checkout');
-    Route::post('/user/packages/{package}/checkout', [PackageController::class, 'storeOrder'])->name('user.packages.order');
+    Route::post('/user/packages/{package}/checkout', [PackageController::class, 'storeOrder'])->name('user.packages.store_order');
     Route::post('/user/packages/buy', [PackageController::class, 'buyPackage'])->name('packages.buy');
     Route::post('/user/packages/{package}/buy', [PackageController::class, 'buyPackage'])->name('user.packages.buy');
 
@@ -121,6 +126,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('deposits', [AdminDepositController::class, 'index'])->name('admin.deposits.index');
     Route::post('deposits/{deposit}/approve', [AdminDepositController::class, 'approve'])->name('admin.deposits.approve');
     Route::post('deposits/{deposit}/reject', [AdminDepositController::class, 'reject'])->name('admin.deposits.reject');
+
+    // Withdrawal Requests Management
+    Route::get('withdrawals', [AdminWithdrawalController::class, 'index'])->name('admin.withdrawals.index');
+    Route::post('withdrawals/{withdrawal}/approve', [AdminWithdrawalController::class, 'approve'])->name('admin.withdrawals.approve');
+    Route::post('withdrawals/{withdrawal}/reject', [AdminWithdrawalController::class, 'reject'])->name('admin.withdrawals.reject');
 
     // Package Orders Management
     Route::get('package-orders', [AdminPackageOrderController::class, 'index'])->name('admin.package-orders.index');
