@@ -152,6 +152,21 @@
             </div>
         </div>
 
+        <!-- Session Alerts -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-3" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm mb-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <!-- Current Balance Card -->
         <div id="home" class="card-emerald p-4 mb-3 shadow">
             <div class="row align-items-center">
@@ -187,40 +202,40 @@
             </div>
         </div>
 
-        <!-- Over View Card Section -->
+        <!-- Overview Card Section -->
         <div class="mb-4">
-            <h5 class="fw-bold text-dark-emerald mb-3">Over view</h5>
+            <h5 class="fw-bold text-dark-emerald mb-3">Overview</h5>
             <div class="card-emerald p-3 shadow-sm">
                 <div class="row text-center g-3">
-                    <div class="col-4 border-end border-light border-opacity-10">
+                    <a href="{{ route('user.balance-history', ['type' => 'withdraw']) }}" class="col-4 border-end border-light border-opacity-10 text-decoration-none text-white d-block cursor-pointer">
                         <div class="small opacity-75 text-light mb-1">Total Withdraw</div>
-                        <div class="fw-bold fs-6">৳0.00</div>
-                    </div>
-                    <div class="col-4 border-end border-light border-opacity-10">
-                        <div class="small opacity-75 text-light mb-1">Total recharge</div>
-                        <div class="fw-bold fs-6">৳{{ number_format($balance, 2) }}</div>
-                    </div>
+                        <div class="fw-bold fs-6 text-white">৳{{ number_format($totalWithdrawals ?? 0, 2) }} <i class="bi bi-chevron-right text-light opacity-50" style="font-size: 0.75rem;"></i></div>
+                    </a>
+                    <a href="{{ route('user.deposit') }}" class="col-4 border-end border-light border-opacity-10 text-decoration-none text-white d-block cursor-pointer">
+                        <div class="small opacity-75 text-light mb-1">Total Recharge</div>
+                        <div class="fw-bold fs-6 text-white">৳{{ number_format($totalRecharge ?? 0, 2) }} <i class="bi bi-chevron-right text-light opacity-50" style="font-size: 0.75rem;"></i></div>
+                    </a>
                     <a href="{{ route('user.referral-bonus') }}" class="col-4 text-decoration-none text-white d-block cursor-pointer">
                         <div class="small opacity-75 text-light mb-1">Total Refer Bonus</div>
-                        <div class="fw-bold fs-6 text-white">৳{{ number_format($totalReferBonus, 2) }} <i class="bi bi-chevron-right text-light opacity-50" style="font-size: 0.75rem;"></i></div>
+                        <div class="fw-bold fs-6 text-white">৳{{ number_format($totalReferBonus ?? 0, 2) }} <i class="bi bi-chevron-right text-light opacity-50" style="font-size: 0.75rem;"></i></div>
                     </a>
 
                     <div class="col-12">
                         <hr class="my-1 opacity-10">
                     </div>
 
-                    <div class="col-4 border-end border-light border-opacity-10">
+                    <a href="{{ route('user.balance-history', ['type' => 'withdraw']) }}" class="col-4 border-end border-light border-opacity-10 text-decoration-none text-white d-block cursor-pointer">
                         <div class="small opacity-75 text-light mb-1">Pending Withdraw</div>
-                        <div class="fw-bold fs-6">৳0.00</div>
-                    </div>
-                    <div class="col-4 border-end border-light border-opacity-10">
+                        <div class="fw-bold fs-6 text-white">৳{{ number_format($pendingWithdraw ?? 0, 2) }} <i class="bi bi-chevron-right text-light opacity-50" style="font-size: 0.75rem;"></i></div>
+                    </a>
+                    <a href="{{ route('user.team') }}" class="col-4 border-end border-light border-opacity-10 text-decoration-none text-white d-block cursor-pointer">
                         <div class="small opacity-75 text-light mb-1">Total Team</div>
-                        <div class="fw-bold fs-6">{{ $totalTeam }}</div>
-                    </div>
-                    <div class="col-4">
+                        <div class="fw-bold fs-6 text-white">{{ $totalTeam }} <i class="bi bi-chevron-right text-light opacity-50" style="font-size: 0.75rem;"></i></div>
+                    </a>
+                    <a href="{{ route('user.deposit') }}" class="col-4 text-decoration-none text-white d-block cursor-pointer">
                         <div class="small opacity-75 text-light mb-1">Pending Deposit</div>
-                        <div class="fw-bold fs-6">$0.00</div>
-                    </div>
+                        <div class="fw-bold fs-6 text-white">৳{{ number_format($pendingDeposit ?? 0, 2) }} <i class="bi bi-chevron-right text-light opacity-50" style="font-size: 0.75rem;"></i></div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -566,23 +581,70 @@
         </div>
     </div>
 
-    <!-- Withdraw Modal Placeholder -->
+    <!-- Withdraw Modal -->
     <div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4 border-0">
+            <div class="modal-content rounded-4 border-0 shadow">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-dark-emerald"><i class="bi bi-box-arrow-up-right me-2"></i> Withdraw
-                        Money</h5>
+                    <h5 class="modal-title fw-bold text-dark-emerald">
+                        <i class="bi bi-box-arrow-up-right me-2 text-success"></i> Withdraw Money
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center py-4">
-                    <i class="bi bi-bank text-primary display-3 mb-3"></i>
-                    <p class="text-muted">Available Balance: <strong
-                            class="text-success">৳{{ number_format($balance, 2) }}</strong></p>
-                    <p class="text-muted small">Minimum withdrawal amount is ৳10.00.</p>
-                    <button type="button" class="btn btn-dark-emerald rounded-pill px-4"
-                        data-bs-dismiss="modal">Close</button>
-                </div>
+                <form action="{{ route('user.withdraw.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body py-3">
+                        <div class="bg-light p-3 rounded-3 mb-3 text-center">
+                            <div class="small text-muted mb-1">Available Balance</div>
+                            <div class="fs-3 fw-black text-success">৳{{ number_format($balance, 2) }}</div>
+                            <div class="small text-muted mt-1" style="font-size: 0.75rem;">Minimum withdrawal amount is ৳10.00</div>
+                        </div>
+
+                        @if(isset($paymentMethods) && $paymentMethods->count() > 0)
+                            <div class="mb-3 text-start">
+                                <label for="withdraw_payment_method" class="form-label small fw-bold text-dark">Payment Method <span class="text-danger">*</span></label>
+                                <select name="payment_method_id" id="withdraw_payment_method" class="form-select rounded-3 py-2" required>
+                                    <option value="" disabled selected>Select payment method</option>
+                                    @foreach($paymentMethods as $pm)
+                                        <option value="{{ $pm->id }}">{{ $pm->name }} ({{ $pm->type }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <div class="alert alert-warning small rounded-3 p-2 mb-3">
+                                <i class="bi bi-exclamation-triangle me-1"></i> No active payment methods available. Please contact admin.
+                            </div>
+                        @endif
+
+                        <div class="mb-3 text-start">
+                            <label for="withdraw_amount" class="form-label small fw-bold text-dark">Withdraw Amount (৳) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-dark fw-bold border-end-0">৳</span>
+                                <input type="number" step="0.01" min="10" max="{{ $balance }}" name="amount" id="withdraw_amount" class="form-control rounded-end-3 py-2" placeholder="e.g. 100.00" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label for="withdraw_account_number" class="form-label small fw-bold text-dark">Receiving Account / Mobile Number <span class="text-danger">*</span></label>
+                            <input type="text" name="account_number" id="withdraw_account_number" class="form-control rounded-3 py-2" placeholder="e.g. 017xxxxxxxx or Bank Account No" required>
+                        </div>
+
+                        <div class="mb-3 text-start">
+                            <label for="withdraw_account_type" class="form-label small fw-bold text-dark">Account Type</label>
+                            <select name="account_type" id="withdraw_account_type" class="form-select rounded-3 py-2">
+                                <option value="Personal" selected>Personal</option>
+                                <option value="Agent">Agent</option>
+                                <option value="Bank Account">Bank Account</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-dark-emerald rounded-pill px-4 fw-bold">
+                            Submit Withdrawal Request
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
